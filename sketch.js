@@ -7,10 +7,10 @@ let foodY;
 function setup() {
     frameRate(3);
     createCanvas(600, 600);
-    foodX = floor(random(0 + GRID_SIZE/2, width-GRID_SIZE/2));
-    foodX = foodX - (foodX % 20);
-    foodY = floor(random(0 + GRID_SIZE/2, height-GRID_SIZE/2));
-    foodY = foodY - (foodY % 20);
+    foodX = floor(random(0, width-GRID_SIZE));
+    foodX = foodX - (foodX % 20) + (GRID_SIZE/2);
+    foodY = floor(random(0, height-GRID_SIZE));
+    foodY = foodY - (foodY % 20) + (GRID_SIZE/2);
 }
 
 function draw() {
