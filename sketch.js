@@ -5,16 +5,14 @@ let dirX = 1;
 let dirY= 0;
 let foodX;
 let foodY;
-let gameOver = false;
+let gameOver;
 
 function setup() {
     frameRate(3);
     createCanvas(600, 600);
     direction = headX;
-    foodX = floor(random(0, width-GRID_SIZE));
-    foodX = foodX - (foodX % 20) + (GRID_SIZE/2);
-    foodY = floor(random(0, height-GRID_SIZE));
-    foodY = foodY - (foodY % 20) + (GRID_SIZE/2);
+    foodX = foodCoord(width);
+    foodY = foodCoord(height);
 }
 
 function draw() {
@@ -25,10 +23,24 @@ function draw() {
         headX += GRID_SIZE * dirX;
         headY += GRID_SIZE * dirY;
     }
-    if (headX < 0 || headX > width - GRID_SIZE || headY < 0 || headY > height - GRID_SIZE){
+    if (isGameOver(headX, 0, width - GRID_SIZE) === true || isGameOver(headY, 0, height - GRID_SIZE) === true){
         gameOver = true;
     }
-    
+}
+
+function isGameOver(coord, minVal, maxVal){
+    if (coord < minVal || coord > maxVal){
+        return true;
+    } else {
+        return false
+    }
+}
+
+function foodCoord(axis){
+    let food
+    food = floor(random(0, axis-GRID_SIZE));
+    food = food - (food % 20) + (GRID_SIZE/2);
+    return food;
 }
 
 function keyPressed() {
