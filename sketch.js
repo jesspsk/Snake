@@ -5,7 +5,6 @@ let dirX = 1;
 let dirY= 0;
 let foodX;
 let foodY;
-let gameOver;
 
 function setup() {
     frameRate(3);
@@ -19,20 +18,14 @@ function draw() {
     background(255);
     square(headX, headY, GRID_SIZE);
     circle(foodX, foodY, GRID_SIZE);
-    if (!gameOver){
+    if (isGameOver() === false){
         headX += GRID_SIZE * dirX;
         headY += GRID_SIZE * dirY;
     }
-
     if (isOverFood(headX, headY, foodX, foodY)){
         foodX = foodCoord(width);
         foodY = foodCoord(height);
     }
-
-    if (outOfBounds(headX, 0, width - GRID_SIZE) || outOfBounds(headY, 0, height - GRID_SIZE)){
-        gameOver = true;
-    }
-
 }
 
 /**
@@ -65,11 +58,22 @@ function outOfBounds(coord, minVal, maxVal){
     }
 }
 
+function isGameOver(){
+    if (headX < 0 || headX > width - GRID_SIZE){
+        return true;
+    } else if (headY < 0 || headY > height - GRID_SIZE){
+        return true;
+    } else {
+        return false;
+    }
+    
+}
+
 
 /**
  * Calculates the coordinates for the food to keep it within the grid
  * @param {number} axis, x or y axix (width or height)
- * @returns {number} the x or y coordinate of the food
+ * @returns {number} the new x or y coordinate of the food
  */
 function foodCoord(axis){
     let food
