@@ -1,95 +1,86 @@
 const GRID_SIZE = 20;
-let snakeX = [300];
-let snakeY = [300];
+let snake = {
+    X : [300],
+    Y : [300]
+}
 let dirX = 1;
-let dirY= 0;
-let foodX;
-let foodY;
+let dirY = 0;
+let food = {
+    X: 0,
+    Y : 0,
+}
 
 function setup() {
     frameRate(3);
     createCanvas(600, 600);
     direction = 20;
-    foodX = foodCoord(width);
-    foodY = foodCoord(height);
+    food.X = foodCoord(width);
+    food.Y = foodCoord(height);
 }
 
 function draw() {
     background(153, 219, 105);
     drawSnake()
     fill(191, 4, 44)
-    circle(foodX, foodY, GRID_SIZE);
+    circle(food.X, food.Y, GRID_SIZE);
     if (isGameOver() === false){
         moveSnake()
     }
     if (isOverFood()){
         addSegment()
-        foodX = foodCoord(width);
-        foodY = foodCoord(height);
+        food.X = foodCoord(width);
+        food.Y = foodCoord(height);
     }
 }
 
+
+/**
+ * "Draws" the snake by creating a square for each pair of coordinates
+ */
 function drawSnake(){
-    for(let i = 0; i < snakeX.length; i++){
+    for(let i = 0; i < snake.X.length; i++){
         if (i===0){
             fill(0, 0, 255)
         } else {
             fill(81, 111, 201)
         }
-        square(snakeX[i], snakeY[i], GRID_SIZE);
+        square(snake.X[i], snake.Y[i], GRID_SIZE);
     }
 }
 
+
+/**
+ * Moves the snake by changing the position of the last segment to the new head
+ */
 function moveSnake(){
     /**for(let i = 0; i < snakeX.length; i++){
         snakeX[i] += GRID_SIZE * dirX;
         snakeY[i] += GRID_SIZE * dirY;
     } **/ 
-   snakeX.unshift(snakeX[0] + GRID_SIZE * dirX) 
-   snakeY.unshift(snakeY[0] + GRID_SIZE * dirY)
-   snakeX.pop()
-   snakeY.pop()  
+   snake.X.unshift(snake.X[0] + GRID_SIZE * dirX) 
+   snake.Y.unshift(snake.Y[0] + GRID_SIZE * dirY)
+   snake.X.pop()
+   snake.Y.pop()  
 }
+
+
+/**
+ * Adds the coordinates of a new segment to the snake arrays
+ */
+function addSegment(){
+    snake.X.push(snake.X[snake.X.length - 1] - GRID_SIZE * dirX)
+    snake.Y.push(snake.Y[snake.Y.length - 1] - GRID_SIZE * dirY)
+}
+
 
 /**
  * Checks if the snake has "eaten" the food (if head is over food)
  * @returns {boolean} true if the snake as "eaten" the food
  */
 function isOverFood(){
-    if (snakeX[0] === foodX - 10 && snakeY[0] === foodY - 10){
+    if (snake.X[0] === food.X - 10 && snake.Y[0] === food.Y - 10){
         return true
     }
-}
-
-/**
- * Checks if the snake's head hits a wall
- * @param {number} coord, the snake head's x or y coordinate  
- * @param {number} minVal, the minimum value coord can be before being out of bounds 
- * @param {number} maxVal , the maximum value coord can be before being out of bounds
- * @returns {boolean}, true if the head is out of bounds, false otherwise 
- */
-function outOfBounds(coord, minVal, maxVal){
-    if (coord < minVal || coord > maxVal){
-        return true;
-    } else {
-        return false
-    }
-}
-
-function isGameOver(){
-    if (snakeX[0] < 0 || snakeX[0] > width - GRID_SIZE){
-        return true;
-    } else if (snakeY[0] < 0 || snakeY[0] > height - GRID_SIZE){
-        return true;
-    } else {
-        return false
-    }
-}
-
-function addSegment(){
-    snakeX.push(snakeX[snakeX.length - 1] - GRID_SIZE * dirX)
-    snakeY.push(snakeY[snakeY.length - 1] - GRID_SIZE * dirY)
-    console.log(snakeX)
 }
 
 /**
@@ -120,5 +111,19 @@ function keyPressed() {
     if (key==='d' || key===RIGHT_ARROW) {
         dirX = 1
         dirY = 0
+    }
+}
+
+/**
+ * Check if the snake's head has hit a wall
+ * @returns {boolean}
+ */
+function isGameOver(){
+    if (snake.X[0] < 0 || snake.X[0] > width - GRID_SIZE){
+        return true;
+    } else if (snake.Y[0] < 0 || snake.Y[0] > height - GRID_SIZE){
+        return true;
+    } else {
+        return false
     }
 }
