@@ -9,8 +9,12 @@ let food = {
     X: 0,
     Y : 0,
 }
+let gameFont;
+let points = 0;
 
-function setup() {
+async function setup() {
+    gameFont = await loadFont("assets/Jersey_10/Jersey10-Regular.ttf")
+    restart()
     frameRate(3);
     createCanvas(600, 600);
     direction = 20;
@@ -20,14 +24,19 @@ function setup() {
 
 function draw() {
     background(153, 219, 105);
-    drawSnake()
-    fill(191, 4, 44)
-    circle(food.X, food.Y, GRID_SIZE);
+    stroke(0);
+    strokeWeight(1);
+    drawSnake();
+    drawFood();
+    displayPoints();
     if (isGameOver() === false){
         moveSnake()
+    } else {
+        displayGameOver()
     }
     if (isOverFood()){
         addSegment()
+        points += 1;
         food.X = foodCoord(width);
         food.Y = foodCoord(height);
     }
@@ -35,7 +44,7 @@ function draw() {
 
 
 /**
- * "Draws" the snake by creating a square for each pair of coordinates
+ * Draws the snake by creating a square for each pair of coordinates
  */
 function drawSnake(){
     for(let i = 0; i < snake.X.length; i++){
@@ -74,6 +83,14 @@ function addSegment(){
 
 
 /**
+ * Draws a circle representing "food"
+ */
+function drawFood(){
+    fill(191, 4, 44)
+    circle(food.X, food.Y, GRID_SIZE);
+}
+
+/**
  * Checks if the snake has "eaten" the food (if head is over food)
  * @returns {boolean} true if the snake as "eaten" the food
  */
@@ -82,6 +99,7 @@ function isOverFood(){
         return true
     }
 }
+
 
 /**
  * Calculates the coordinates for the food to keep it within the grid
@@ -94,6 +112,7 @@ function foodCoord(axis){
     food = food - (food % GRID_SIZE) + (GRID_SIZE/2);
     return food;
 }
+
 
 function keyPressed() {
     if (key==='w' || key===UP_ARROW) {
@@ -112,6 +131,9 @@ function keyPressed() {
         dirX = 1
         dirY = 0
     }
+    if (key===' ' && isGameOver()){
+        restart()
+    }
 }
 
 /**
@@ -124,6 +146,49 @@ function isGameOver(){
     } else if (snake.Y[0] < 0 || snake.Y[0] > height - GRID_SIZE){
         return true;
     } else {
-        return false
+        return false;
     }
+}
+
+
+/**
+ * Draws the "Game Over" screen
+ */
+function displayGameOver(){
+    background(0);
+    fill(255, 0, 0);
+    strokeWeight(5);
+    stroke(140, 1, 1);
+    textAlign(CENTER,CENTER);
+    textSize(80)
+    text("GAME OVER", 300, 260);
+    textSize(25);
+    text("Press 'Space' to restart", 300, 310);
+    textSize(35);
+    text(`Points: ${points}`, 300, 380)
+}
+
+
+/**
+ * Displays the total points ( total food eaten) in the top left corner
+ */
+function displayPoints(){
+    fill(0);
+    noStroke();
+    textFont(gameFont);
+    textAlign(LEFT, TOP);
+    textSize(25);
+    text(`Points: ${points}`, 20, 20)
+}
+
+/**
+ * Resta rts the game by resetting the snake to it's original state and generating a new location for the food
+ */
+function restart(){
+    snake.X = [300];
+    snake.Y = [300];
+    dirX = 1;
+    dirY = 0;
+    food.X = foodCoord(width)
+    food.Y = foodCoord(height)
 }
