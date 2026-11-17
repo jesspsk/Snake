@@ -191,4 +191,5 @@ function restart(){
     dirY = 0;
     food.X = foodCoord(width)
     food.Y = foodCoord(height)
+    points = 0;
 }
