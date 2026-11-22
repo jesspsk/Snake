@@ -1,152 +1,67 @@
 const GRID_SIZE = 20;
-let snake = {
-    X : [300],
-    Y : [300]
-}
-let dirX = 1;
-let dirY = 0;
-let food = {
-    X: 0,
-    Y : 0,
-}
+let food ;
+let snake;
 let gameFont;
 let points = 0;
+let startBtn;
+let radioBtn;
+
 
 async function setup() {
     gameFont = await loadFont("assets/Jersey_10/Jersey10-Regular.ttf")
+    const container = select("main");
     restart()
     frameRate(3);
     createCanvas(600, 600);
-    direction = 20;
-    food.X = foodCoord(width);
-    food.Y = foodCoord(height);
 }
 
 function draw() {
     background(153, 219, 105);
     stroke(0);
     strokeWeight(1);
-    drawSnake();
-    drawFood();
+    snake.drawSnake();
+    food.drawFood();
     displayPoints();
-    if (isGameOver() === false){
-        moveSnake()
+    if (snake.hitWall() === false){
+        snake.moveSnake()
     } else {
         displayGameOver()
     }
-    if (isOverFood()){
-        addSegment()
+    if (snake.isOverFood()){
+        snake.addSegment()
         points += 1;
-        food.X = foodCoord(width);
-        food.Y = foodCoord(height);
+        food = new Food();
     }
 }
 
 
-/**
- * Draws the snake by creating a square for each pair of coordinates
- */
-function drawSnake(){
-    for(let i = 0; i < snake.X.length; i++){
-        if (i===0){
-            fill(0, 0, 255)
-        } else {
-            fill(81, 111, 201)
-        }
-        square(snake.X[i], snake.Y[i], GRID_SIZE);
-    }
+function initBtn(){
+    startBtn = createButton("Start Game");
+    startBtn.parent(container);
+    radioBtn = createButton("Level");
+    radioBtn.parent(container);
+
 }
-
-
-/**
- * Moves the snake by changing the position of the last segment to the new head
- */
-function moveSnake(){
-    /**for(let i = 0; i < snakeX.length; i++){
-        snakeX[i] += GRID_SIZE * dirX;
-        snakeY[i] += GRID_SIZE * dirY;
-    } **/ 
-   snake.X.unshift(snake.X[0] + GRID_SIZE * dirX) 
-   snake.Y.unshift(snake.Y[0] + GRID_SIZE * dirY)
-   snake.X.pop()
-   snake.Y.pop()  
-}
-
-
-/**
- * Adds the coordinates of a new segment to the snake arrays
- */
-function addSegment(){
-    snake.X.push(snake.X[snake.X.length - 1] - GRID_SIZE * dirX)
-    snake.Y.push(snake.Y[snake.Y.length - 1] - GRID_SIZE * dirY)
-}
-
-
-/**
- * Draws a circle representing "food"
- */
-function drawFood(){
-    fill(191, 4, 44)
-    circle(food.X, food.Y, GRID_SIZE);
-}
-
-/**
- * Checks if the snake has "eaten" the food (if head is over food)
- * @returns {boolean} true if the snake as "eaten" the food
- */
-function isOverFood(){
-    if (snake.X[0] === food.X - 10 && snake.Y[0] === food.Y - 10){
-        return true
-    }
-}
-
-
-/**
- * Calculates the coordinates for the food to keep it within the grid
- * @param {number} axis, x or y axix (width or height)
- * @returns {number} the new x or y coordinate of the food
- */
-function foodCoord(axis){
-    let food
-    food = floor(random(0 + GRID_SIZE/2, axis - GRID_SIZE/2));
-    food = food - (food % GRID_SIZE) + (GRID_SIZE/2);
-    return food;
-}
-
 
 function keyPressed() {
     if (key==='w' || key===UP_ARROW) {
-        dirY = -1
-        dirX = 0
+        snake.dirY = -1
+        snake.dirX = 0
     }
     if (key==='a' || key===LEFT_ARROW) {
-        dirX = -1
-        dirY = 0
+        snake.dirX = -1
+        snake.dirY = 0
     }
     if (key==='s' || key===DOWN_ARROW) {
-        dirY = 1
-        dirX = 0
+        snake.dirY = 1
+        snake.dirX = 0
     }
     if (key==='d' || key===RIGHT_ARROW) {
-        dirX = 1
-        dirY = 0
+        snake.dirX = 1
+        snake.dirY = 0
     }
-    if (key===' ' && isGameOver()){
+    if (key===' ' && snake.hitWall()){
         restart()
-    }
-}
-
-/**
- * Check if the snake's head has hit a wall
- * @returns {boolean}
- */
-function isGameOver(){
-    if (snake.X[0] < 0 || snake.X[0] > width - GRID_SIZE){
-        return true;
-    } else if (snake.Y[0] < 0 || snake.Y[0] > height - GRID_SIZE){
-        return true;
-    } else {
-        return false;
     }
 }
 
@@ -181,15 +96,110 @@ function displayPoints(){
     text(`Points: ${points}`, 20, 20)
 }
 
+
 /**
- * Resta rts the game by resetting the snake to it's original state and generating a new location for the food
+ * Restarts the game by resetting the snake to it's original state and generating a new location for the food
  */
 function restart(){
-    snake.X = [300];
-    snake.Y = [300];
-    dirX = 1;
-    dirY = 0;
-    food.X = foodCoord(width)
-    food.Y = foodCoord(height)
+    snake = new Snake()
+    food = new Food()
     points = 0;
 }
+
+
+class Food{ 
+    constructor(){
+        this.x = this.foodCoord(width);
+        this.y = this.foodCoord(height);
+    }
+
+    /**
+     * Calculates the coordinates for the food to keep it within the grid
+     * @param {number} axis, x or y axix (width or height)
+     * @returns {number} the new x or y coordinate of the food
+     */
+    foodCoord(axis){
+        let food
+        food = floor(random(0 + GRID_SIZE/2, axis - GRID_SIZE/2));
+        food = food - (food % GRID_SIZE) + (GRID_SIZE/2);
+        return food;
+    }
+
+    /**
+    * Draws a circle representing "food"
+    */
+    drawFood(){
+        fill(191, 4, 44)
+        circle(this.x, this.y, GRID_SIZE);
+    }
+}
+
+
+class Snake{
+    constructor(){
+        this.x = [300];
+        this.y = [300];
+        this.dirX = 1;
+        this.dirY = 0
+    }
+
+    /**
+     * Draws the snake by creating a square for each pair of coordinates
+     */
+    drawSnake(){
+        for(let i = 0; i < this.x.length; i++){
+            if (i===0){
+                fill(0, 0, 255)
+            } else {
+                fill(81, 111, 201)
+            }
+            square(this.x[i], this.y[i], GRID_SIZE);
+        }
+    }
+
+    /**
+     * Moves the snake by changing the position of the last segment to the new head
+     */
+    moveSnake(){
+    this.x.unshift(this.x[0] + GRID_SIZE * this.dirX) 
+    this.y.unshift(this.y[0] + GRID_SIZE * this.dirY)
+    this.x.pop()
+    this.y.pop()  
+    }
+
+
+    /**
+     * Adds the coordinates of a new segment to the snake arrays
+     */
+    addSegment(){
+        this.x.push(this.x[this.x.length - 1] - GRID_SIZE * this.dirX)
+        this.y.push(this.y[this.y.length - 1] - GRID_SIZE * this.dirY)
+    }
+
+    /**
+     * Checks if the snake has "eaten" the food (if head is over food)
+     * @returns {boolean} true if the snake as "eaten" the food
+     */
+    isOverFood(){
+        if (this.x[0] === food.x - 10 && this.y[0] === food.y - 10){
+            return true
+        }
+    }
+
+    /**
+     * Check if the snake's head has hit a wall
+     * @returns {boolean}
+     */
+    hitWall(){
+        if (this.x[0] < 0 || this.x[0] > width - GRID_SIZE){
+            return true;
+        } else if (this.y[0] < 0 || this.y[0] > height - GRID_SIZE){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+}
+
+
